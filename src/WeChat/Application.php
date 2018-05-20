@@ -4,13 +4,14 @@ use WeChat\Util\Log;
 use WeChat\Util\HttpRequest;
 use WeChat\Exception\ErrorException;
 use WeChat\Exception\ClassNotException;
+
 class Application
 {
 	/**
-	 * 配置
+	 * 应用配置
 	 * @var array
 	 */
-	protected $config = [];
+	protected static $config = [];
 
 	/**
 	 * 接收到的数据
@@ -50,11 +51,15 @@ class Application
 	 */
 	public function __construct ($config = [])
 	{
-		// 获取默认配置
-		$this->config = empty($config) ? require __DIR__ . '/config.php' : [];
-		$this->config($config);
+		if (empty(self::$config))
+		{
+			// 获取默认配置
+			$defaultCfg   = is_file(__DIR__ . '/config.php') ? require __DIR__ . '/config.php' : [];
+			// 赋值配置
+			self::$config = empty($config) ? $defaultCfg : array_merge($defaultCfg,$config); 
+		}
 		// 构造日志存储对象
-		$this->log = new Log($this->config['log']);
+		$this->log = new Log(self::$config['log']);
 		// 获取解析后的请求数据
 		$this->data = $this->getRequestData();
 		// 获取accessToken
@@ -83,14 +88,14 @@ class Application
 	public function config ($name = '',$value = '')
 	{
 		if (empty($name)) {
-			return $this->config;
+			return self::$config;
 		}
 		if (is_array($name)) {
-			$this->config = array_merge($this->config,$name);
+			self::$config = array_merge(self::$config,$name);
 		} elseif (!empty($name) && !empty($value)) {
-			$this->config[$name] = $value;
+			self::$config[$name] = $value;
 		} else {
-			return $this->config[$name];
+			return self::$config[$name];
 		}
 	}
 	// 实例化获取对象
@@ -123,7 +128,7 @@ class Application
 	 */
 	public function getAccessToken ($cache = true)
 	{
-		$cacheFileName = md5($this->config['app_id'] . $this->config['app_secret']);
+		$cacheFileName = md5(self::$config['app_id'] . self::$config['app_secret']);
 		$cacheFile     = __DIR__ . '/Cache/' . $cacheFileName . '.php';
 		if ($cache === true && is_file($cacheFile) && filemtime($cacheFile) + 7000 > time()) {
 			// 缓存有效,直接获取缓存内容
@@ -131,12 +136,12 @@ class Application
 			$data 	 = unserialize($content);
 		} else {
 			$data = HttpRequest::get($this->apiUrl . 'cgi-bin/token',[
-				'grant_type' => 'client_credential','appid' => $this->config['app_id'],'secret' => $this->config['app_secret']
+				'grant_type' => 'client_credential','appid' => self::$config['app_id'],'secret' => self::$config['app_secret']
 			])->jsonToArray()->read();
 			// 获取失败返回
 			if (isset($data['errcode'])) {
 				$this->log->write(['message' => 'access_token 获取失败','data' => $data]);
-				return false;
+				throw new \ErrorException("基础支持access_token获取失败");
 			}
 			// 缓存access_token
 			$cachePath 	  = dirname($cacheFile);

@@ -8,10 +8,7 @@ class Request
     private $get;
     private $post;
     private $server;
-    private function __construct ()
-    {
-
-    }
+    private function __construct () {}
     private function __clone () {} // 单例禁止克隆
     
     /**

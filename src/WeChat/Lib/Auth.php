@@ -2,6 +2,7 @@
 namespace WeChat\Lib;
 use WeChat\Application;
 use WeChat\Exception\ErrorException;
+
 class Auth extends Application
 {
 	/**
@@ -12,7 +13,7 @@ class Auth extends Application
 	 */
 	public function checkToken ($token = '')
 	{
-		$token = $token ?: $this->config['token'];
+		$token = $token ?: self::$config['token'];
 		if (!isset($_GET['signature']) || !isset($_GET['nonce']) || !isset($_GET['timestamp'])) {
 			throw new ErrorException("参数错误！");
 		}

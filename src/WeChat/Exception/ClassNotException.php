@@ -1,5 +1,6 @@
 <?php
 namespace WeChat\Exception;
+
 class ClassNotException extends Exception
 {	
 	/**

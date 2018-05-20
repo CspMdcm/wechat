@@ -38,13 +38,13 @@ class Oauth extends Application
 		
 		// 获取code
 		if (empty($request->get('code')) && $request->get('state') != 'STATE') {
-			$url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" . $this->config['app_id'] . "&redirect_uri=" .$redirectUrl . "&response_type=code&scope=" . $this->scope . "&state=STATE#wechat_redirect";
+			$url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" . self::$config['app_id'] . "&redirect_uri=" .$redirectUrl . "&response_type=code&scope=" . $this->scope . "&state=STATE#wechat_redirect";
 			return $request->redirect($url);
 		}
 		// 通过code获取access_token
 		$result = HttpRequest::get($this->apiUrl . 'sns/oauth2/access_token',[
-			'appid'  	 => $this->config['app_id'],
-			'secret' 	 => $this->config['app_secret'],
+			'appid'  	 => self::$config['app_id'],
+			'secret' 	 => self::$config['app_secret'],
 			'code'	 	 => $request->get('code'),
 			'grant_type' => 'authorization_code'
 		])->jsonToArray()->read();
@@ -59,7 +59,7 @@ class Oauth extends Application
 		if ($this->tokenWhetherExpire($data['access_token'],$data['openid']))
 		{
 			// 过期则刷新access_token
-			$data = $this->refreshAccessToken($this->config['app_id'],$data['refresh_token']);	
+			$data = $this->refreshAccessToken(self::$config['app_id'],$data['refresh_token']);	
 		}
 		$_SESSION['wechat_user'] = new \WeChat\Lib\Oauth\User($data);
 		return $data;

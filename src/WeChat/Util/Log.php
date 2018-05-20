@@ -5,16 +5,16 @@ class Log
 {
 	protected $config = [];
   
-  /**
-   * 构造方法初始化
-   * @access public
-   * @param array $config 
-   * @return void
-   */
-	public function __construct ($config = [])
-	{
-     $this->config = $config;
-	}
+    /**
+     * 构造方法初始化
+     * @access public
+     * @param array $config 
+     * @return void
+     */
+  	public function __construct ($config = [])
+  	{
+       $this->config = $config;
+  	}
 	/**
      * 写日志
      * @access public
@@ -30,7 +30,7 @@ class Log
        $logMsg = '';
        switch (!empty($message)) {
          case is_array($message) || is_object($message):
-           $logMsg = json_encode($message);
+           $logMsg = json_encode($message,JSON_UNESCAPED_UNICODE);
            break;
          default:
            $logMsg = $message;

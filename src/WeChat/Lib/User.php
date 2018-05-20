@@ -4,6 +4,7 @@ use WeChat\Application;
 use WeChat\Exception\ErrorException;
 use WeChat\Util\Error;
 use WeChat\Util\HttpRequest;
+
 class User extends Application
 {
 	use Error;

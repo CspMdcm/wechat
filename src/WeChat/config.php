@@ -6,7 +6,11 @@ return [
 	'app_secret'  => '',
 	// Token
 	'token'		  => '',
-
+	// 商户号
+	'merch_id'    => '',
+	// api密钥
+	'api_key'	  => '',
+	
 	// 日志记录
 	'log' => [
 		// 存储路径

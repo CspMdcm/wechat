@@ -2,6 +2,7 @@
 namespace WeChat\Lib\Message;
 use WeChat\Lib\Message;
 use WeChat\Util\Xml;
+
 class Text extends Message
 {
 	/**
