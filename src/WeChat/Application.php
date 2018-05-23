@@ -130,10 +130,10 @@ class Application
 	{
 		$cacheFileName = md5(self::$config['app_id'] . self::$config['app_secret']);
 		$cacheFile     = __DIR__ . '/Cache/' . $cacheFileName . '.php';
-		if ($cache === true && is_file($cacheFile) && filemtime($cacheFile) + 7000 > time()) {
+		if ($cache === true && is_file($cacheFile) && unserialize(file_get_contents($cacheFile))['create_time'] + 7000 > time()) {
 			// 缓存有效,直接获取缓存内容
 			$content = file_get_contents($cacheFile);
-			$data 	 = unserialize($content);
+			$data 	 = unserialize($content)['data'];
 		} else {
 			$data = HttpRequest::get($this->apiUrl . 'cgi-bin/token',[
 				'grant_type' => 'client_credential','appid' => self::$config['app_id'],'secret' => self::$config['app_secret']
@@ -141,12 +141,12 @@ class Application
 			// 获取失败返回
 			if (isset($data['errcode'])) {
 				$this->log->write(['message' => 'access_token 获取失败','data' => $data]);
-				throw new \ErrorException("基础支持access_token获取失败");
+				throw new ErrorException("基础支持access_token获取失败");
 			}
 			// 缓存access_token
 			$cachePath 	  = dirname($cacheFile);
 			is_dir($cachePath) || mkdir($cachePath,0755,true);
-			$cacheContent = serialize($data);
+			$cacheContent = serialize(['data' => $data,'create_time' => time()]);
 			file_put_contents($cacheFile,$cacheContent);
 		}
 		return $data['access_token'];

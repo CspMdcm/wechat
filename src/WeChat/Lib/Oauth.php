@@ -16,6 +16,18 @@ class Oauth extends Application
 	protected $scope;
 
 	/**
+	 * 信息存储key
+	 * @var string
+	 */
+	protected $saveKey = 'wechat_user';
+
+	/**
+	 * 回调函数组
+	 * @var array
+	 */
+	protected $callbacks = [];
+
+	/**
 	 * 设置获取作用域
 	 * @param  string $scope 
 	 * @return void
@@ -27,6 +39,29 @@ class Oauth extends Application
 	}
 
 	/**
+	 * 设置信息保存key
+	 * @param string $key 
+	 * @return object
+	 */
+	public function saveKey ($key = 'wechat_user')
+	{
+		$this->saveKey = $key;
+		return $this;
+	}
+	/**
+	 * 压入执行回调函数
+	 * @param  closures  $callback 
+	 * @return object         
+	 */
+	public function push ($callback)
+	{
+		 if ($callback instanceof \Closure)
+		 {
+		 	array_push($this->callbacks, $callback);
+		 }
+		 return $this;
+	}
+	/**
 	 * 网页授权获取
 	 * @param  string $redirectUrl 
 	 * @return mixed     
@@ -35,7 +70,7 @@ class Oauth extends Application
 	{
 		$request = Request::getInstance();
 		$redirectUrl = !empty($redirectUrl) ? $redirectUrl : urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].$_SERVER['QUERY_STRING']);
-		
+
 		// 获取code
 		if (empty($request->get('code')) && $request->get('state') != 'STATE') {
 			$url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" . self::$config['app_id'] . "&redirect_uri=" .$redirectUrl . "&response_type=code&scope=" . $this->scope . "&state=STATE#wechat_redirect";
@@ -61,7 +96,16 @@ class Oauth extends Application
 			// 过期则刷新access_token
 			$data = $this->refreshAccessToken(self::$config['app_id'],$data['refresh_token']);	
 		}
-		$_SESSION['wechat_user'] = new \WeChat\Lib\Oauth\User($data);
+		$userInfo = new \WeChat\Lib\Oauth\User($data);
+		$_SESSION[$this->saveKey] = $userInfo;
+
+		if (!empty($this->callbacks))
+		{
+			foreach ($this->callbacks as $callback)
+			{
+				$callback($userInfo);
+			}
+		}
 		return $data;
 	}
 
@@ -72,10 +116,10 @@ class Oauth extends Application
 	 */
 	public function user ($redirectUrl = '')
 	{
-		if (empty($_SESSION['wechat_user'])) {
+		if (empty($_SESSION[$this->saveKey])) {
 			$this->scope('snsapi_userinfo')->redirectUrl($redirectUrl);
 		}
-		return $_SESSION['wechat_user'];
+		return $_SESSION[$this->saveKey];
 	}
 	/**
 	 * 检测token是否过期
