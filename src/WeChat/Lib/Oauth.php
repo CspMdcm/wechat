@@ -88,7 +88,7 @@ class Oauth extends Application
 
 		if (isset($data['errcode']))
 		{
-			throw new ErrorException("授权登录错误,access_token获取失败");
+			throw new ErrorException("授权登录错误,access_token获取失败->" . $data['errmsg']);
 		}
 		// 检测token是否过期
 		if ($this->tokenWhetherExpire($data['access_token'],$data['openid']))

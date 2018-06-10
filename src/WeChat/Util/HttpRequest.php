@@ -114,7 +114,7 @@ class HttpRequest
         // 如果请求头信息不为空则设置请求头信息
         !empty($headerData) && curl_setopt($ch, CURLOPT_HTTPHEADER, $headerData);
         // post方式的时候添加数据  
-        $method == 'POST' && !empty($data) && curl_setopt($ch, CURLOPT_POSTFIELDS, $data);
+        $method == 'POST' && !empty($data) && curl_setopt($ch, CURLOPT_POSTFIELDS, is_array($data) ? http_build_query($data) : $data);
         // get方法的时候添加get数据
         $method == 'GET' && !empty($data) && $url .= '?' . http_build_query($data);
         // 请求地址

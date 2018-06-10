@@ -25,7 +25,6 @@ class User implements \ArrayAccess
 	public function __construct ($data = [])
 	{
 		$this->data = $this->getData($data);
-		
 		if (isset($this->data['errcode']))
 		{
 			throw new \Exception("授权错误->" . $this->data['errmsg']);

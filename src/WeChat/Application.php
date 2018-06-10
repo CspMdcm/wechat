@@ -4,6 +4,7 @@ use WeChat\Util\Log;
 use WeChat\Util\HttpRequest;
 use WeChat\Exception\ErrorException;
 use WeChat\Exception\ClassNotException;
+use WeChat\Util\Xml;
 
 class Application
 {
@@ -73,7 +74,8 @@ class Application
 	protected function getRequestData ()
 	{
 		$data = file_get_contents('php://input');
-		if (!empty($data)) {
+		$xml = new Xml();
+		if (!empty($data) && $xml->isXml($data) && substr($data,0,1) == '<') {
 			return simplexml_load_string($data,'SimpleXMLElement',LIBXML_NOCDATA);
 		}
 		return [];
@@ -169,5 +171,19 @@ class Application
 	        }
 	     }
 	     return $array;
+	}
+	/**
+	 * 生成随机位数字符串
+	 * @param  integer $length 
+	 * @return string      
+	 */
+	public function createNonceStr ($length = 16)
+	{
+		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+	    $str   = "";
+	    for ($i = 0; $i < $length; $i++) {
+	      $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
+	    }
+	    return $str;
 	}
 }
