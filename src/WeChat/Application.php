@@ -153,37 +153,4 @@ class Application
 		}
 		return $data['access_token'];
 	}
-	/**
-	 * 模拟分页获取数据
-	 * @param  array  $data   待获取数据
-	 * @param  integer $index 获取索引   
-	 * @param  integer $length 获取行数
-	 * @return array
-	 */
-	public function paged ($data,$index,$length = 3)
-	{
-	     $offset = ($index - 1) * $length;
-	     $array  = [];
-	     for ($i = 0; $i < $length; $i++) {
-	     	  $key = $offset + $i;
-	        if (isset($data[$key])) {
-	           $array[] = $data[$key];
-	        }
-	     }
-	     return $array;
-	}
-	/**
-	 * 生成随机位数字符串
-	 * @param  integer $length 
-	 * @return string      
-	 */
-	public function createNonceStr ($length = 16)
-	{
-		$chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	    $str   = "";
-	    for ($i = 0; $i < $length; $i++) {
-	      $str .= substr($chars, mt_rand(0, strlen($chars) - 1), 1);
-	    }
-	    return $str;
-	}
 }

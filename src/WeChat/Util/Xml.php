@@ -62,7 +62,21 @@ class Xml
         $xml .= $headXml ? '</xml>' : '';
         return $xml;
 	}
-
+	/**
+	 * xml转换array
+	 * @param string $xml
+	 * @return array
+	 */
+	public function toArray ($xml = '')
+	{
+		if (!$this->isXml($xml) || substr($xml,0,1) != '<')
+		{
+			return [];
+		}
+		libxml_disable_entity_loader(true);
+		$data = json_decode(json_encode(simplexml_load_string($xml, 'SimpleXMLElement', LIBXML_NOCDATA)), true); 
+		return $data;
+	}
 	/**
 	 * 对象输出
 	 * @access public
@@ -74,7 +88,7 @@ class Xml
 		return $this->toXml();
 	}
 	/**
-	 * set xml data
+	 * 设置数据
 	 * @param  mixed $xmlData 
 	 * @return object      
 	 */
@@ -82,7 +96,7 @@ class Xml
 	{
 		switch (!empty($xmlData)) {
 			case is_string($xmlData):
-				$this->xmlData = simplexml_load_string($data,'SimpleXMLElement',LIBXML_NOCDATA);
+				$this->xmlData = $this->toArray($xmlData);
 				break;
 			case is_array($xmlData) || is_object($xmlData):
 				$this->xmlData = $xmlData;

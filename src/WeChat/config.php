@@ -1,16 +1,20 @@
 <?php
 return [
 	// appID
-	'app_id' 	  => '',
+	'app_id' 	    => '',
 	// appsecret
-	'app_secret'  => '',
+	'app_secret'    => '',
 	// Token
-	'token'		  => '',
+	'token'		    => '',
 	// 商户号
-	'merch_id'    => '',
+	'merch_id'      => '',
 	// api密钥
-	'api_key'	  => '',
-	
+	'api_key'	    => '',
+	// 证书(使用绝对路径)
+	'cert_path' 	=> '',
+	'key_path'  	=> '',
+	// 支付通知回调url
+	'notify_url'    => 'https://pay.weixin.qq.com/wxpay/pay.action',
 	// 日志记录
 	'log' => [
 		// 存储路径

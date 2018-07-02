@@ -4,9 +4,12 @@ use WeChat\Exception\ErrorException;
 use WeChat\Application;
 use WeChat\Util\Error;
 use WeChat\Util\HttpRequest;
+use WeChat\Util\Ohter;
 
 class JsSdk extends Application
 {
+	use Ohter;
+	
 	/**
 	 * 获取sign package
 	 * @return array

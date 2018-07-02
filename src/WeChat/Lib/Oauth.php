@@ -29,7 +29,7 @@ class Oauth extends Application
 
 	/**
 	 * 设置获取作用域
-	 * @param  string $scope 
+	 * @param  string $scope snsapi_base || snsapi_userinfo
 	 * @return void
 	 */
 	public function scope ($scope = 'snsapi_base')
@@ -69,8 +69,16 @@ class Oauth extends Application
 	public function redirect ($redirectUrl = '')
 	{
 		$request = Request::getInstance();
-		$redirectUrl = !empty($redirectUrl) ? $redirectUrl : urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'].$_SERVER['QUERY_STRING']);
 
+		if (empty($redirectUrl))
+		{
+			$queryString = '';
+			if (strpos($_SERVER['REQUEST_URI'],'?') !== false)
+			{
+				$queryString = '?' . explode('?', $_SERVER['REQUEST_URI'])[1];
+			}
+			$redirectUrl = urlencode('http://'.$_SERVER['HTTP_HOST'].$_SERVER['REQUEST_URI'] . $queryString);
+		}
 		// 获取code
 		if (empty($request->get('code')) && $request->get('state') != 'STATE') {
 			$url = "https://open.weixin.qq.com/connect/oauth2/authorize?appid=" . self::$config['app_id'] . "&redirect_uri=" .$redirectUrl . "&response_type=code&scope=" . $this->scope . "&state=STATE#wechat_redirect";
@@ -88,7 +96,12 @@ class Oauth extends Application
 
 		if (isset($data['errcode']))
 		{
-			throw new ErrorException("授权登录错误,access_token获取失败->" . $data['errmsg']);
+			throw new ErrorException("授权登录错误,获取失败->" . $data['errmsg']);
+		}
+		if ($this->scope == 'snsapi_base')
+		{
+			$this->callBack($data);
+			return $data;
 		}
 		// 检测token是否过期
 		if ($this->tokenWhetherExpire($data['access_token'],$data['openid']))
@@ -96,19 +109,30 @@ class Oauth extends Application
 			// 过期则刷新access_token
 			$data = $this->refreshAccessToken(self::$config['app_id'],$data['refresh_token']);	
 		}
+
 		$userInfo = new \WeChat\Lib\Oauth\User($data);
 		$_SESSION[$this->saveKey] = $userInfo;
 
+		$this->callBack($userInfo);
+
+		return $data;
+	}
+
+	/**
+	 * 执行回调
+	 * @param  array $params 
+	 * @return mixed    
+	 */
+	private function callBack ($params)
+	{
 		if (!empty($this->callbacks))
 		{
 			foreach ($this->callbacks as $callback)
 			{
-				$callback($userInfo);
+				$callback($params);
 			}
 		}
-		return $data;
 	}
-
 	/**
 	 * 授权获取用户信息
 	 * @param  string $redirectUrl 
